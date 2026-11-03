@@ -582,9 +582,23 @@ export default function App() {
                   options={[{ v: "no", label: "No" }, { v: "si", label: "Sí" }]} />
               </Field>
               {f.tomaMedicacion === "si" && (
-                <Field label="Detalle de medicación" className="mt-3">
-                  <Area v={f.medicacion} on={(v) => set("medicacion", v)} rows={2} placeholder="Fármaco, dosis, última toma…" />
-                </Field>
+                <>
+                  <Field label="Detalle de medicación" className="mt-3">
+                    <Area v={f.medicacion} on={(v) => set("medicacion", v)} rows={2} placeholder="Fármaco, dosis, última toma…" />
+                  </Field>
+                  <Field label="Medicamentos crónicos frecuentes" className="mt-3">
+                    <div className="flex flex-wrap gap-2">
+                      {MED_PERIOP.map((m) => (
+                        <button key={m.id} onClick={() => toggleArr("medPeriop", m.id)}
+                          className={`rounded-full px-3 py-1.5 text-[12.5px] ring-1 transition ${
+                            f.medPeriop.includes(m.id) ? "bg-teal-700 text-white ring-teal-700" : "bg-white text-stone-600 ring-stone-200 hover:ring-stone-300"}`}>
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-1.5 text-[11px] text-stone-400">El manejo perioperatorio orientativo de cada fármaco aparece en «Plan anestésico → Manejo de medicación crónica perioperatoria».</p>
+                  </Field>
+                </>
               )}
 
               <Field label="¿Anticoagulantes / antiagregantes?" className="mt-3">
@@ -1202,21 +1216,14 @@ export default function App() {
               </div>
               <Field label="Ayuno / indicaciones adicionales" className="mt-3"><Text v={f.ayuno} on={(v) => set("ayuno", v)} placeholder="indicaciones específicas adicionales" /></Field>
               <Field label="Manejo de medicación crónica perioperatoria" className="mt-3">
-                <div className="flex flex-wrap gap-2">
-                  {MED_PERIOP.map((m) => (
-                    <button key={m.id} onClick={() => toggleArr("medPeriop", m.id)}
-                      className={`rounded-full px-3 py-1.5 text-[12.5px] ring-1 transition ${
-                        f.medPeriop.includes(m.id) ? "bg-teal-700 text-white ring-teal-700" : "bg-white text-stone-600 ring-stone-200 hover:ring-stone-300"}`}>
-                      {m.label}
-                    </button>
-                  ))}
-                </div>
-                {f.medPeriop.length > 0 && (
-                  <div className="mt-2 space-y-1 rounded-md bg-amber-50 p-2.5 ring-1 ring-amber-100">
+                {f.medPeriop.length > 0 ? (
+                  <div className="space-y-1 rounded-md bg-amber-50 p-2.5 ring-1 ring-amber-100">
                     {MED_PERIOP.filter((m) => f.medPeriop.includes(m.id)).map((m) => (
                       <p key={m.id} className="text-[11.5px] leading-snug text-stone-600"><span className="font-medium text-stone-700">{m.label}:</span> {m.nota}</p>
                     ))}
                   </div>
+                ) : (
+                  <p className="text-[12px] text-stone-400">Seleccione los medicamentos crónicos en «Medicación y alergias» para ver aquí el manejo perioperatorio orientativo.</p>
                 )}
                 <p className="mt-1.5 text-[11px] text-stone-400">Notas orientativas; la conducta final depende de la guía local, el riesgo de sangrado/trombosis y el tipo de cirugía. Para antitrombóticos use QxAApp.</p>
               </Field>
