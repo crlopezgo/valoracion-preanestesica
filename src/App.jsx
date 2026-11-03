@@ -24,7 +24,7 @@ const num = (v) => {
 
 const initial = {
   // Paciente
-  nombre: "", documento: "", fechaNacimiento: "", edad: "", sexo: "", gestacion: "no", fum: "", semanasGestacion: "", peso: "", talla: "", cuello: "", cfs: "",
+  nombre: "", documento: "", fechaNacimiento: "", edad: "", sexo: "", tipoValoracion: "ambulatoria", enfermedadActual: "", diagnosticos: "", tratamientoIntra: "", gestacion: "no", fum: "", semanasGestacion: "", peso: "", talla: "", cuello: "", cfs: "",
   // Procedimiento
   cirugia: "", fecha: "", caracter: "electiva", ncepod: "", lateralidad: "na", altoRiesgoQx: false, procedimientoEsc: "",
   // Antecedentes
@@ -33,7 +33,7 @@ const initial = {
   epoc: false, asma: false, asmaExacerbacion: "", saos: false, diabetes: false, diabetesInsulina: false,
   hipotiroidismo: false, tiroidesTipo: "", tiroidesControl: "controlado", erc: false, hepatopatia: false,
   cpBili: "1", cpAlb: "1", cpInr: "1", cpAscitis: "1", cpEncef: "1", ecv: false, ecvDetalle: "", rge: false,
-  coagulopatia: false, cancer: false, cancerTipo: "", antecedentesOtros: "",
+  coagulopatia: false, cancer: false, cancerTipo: "", deci: "no", deciTipo: "", deciControl: "", deciBateria: "", deciElectrodos: "", deciDetalle: "", antecedentesOtros: "",
   iccNyha: "", iccFevi: "", iccEtiologia: "",
   epocO2: false, epocDetalle: "", saosCpap: "", saosTitulacion: "",
   valvTipo: "", valvSeveridad: "", valvProtesis: "no",
@@ -50,9 +50,9 @@ const initial = {
   tomaMedicacion: "", medicacion: "", anticoagulantes: "", anticoagDetalle: "", tieneAlergias: "", alergias: "",
   // Hábitos / capacidad funcional
   tabaco: "no", tabacoSusp: "", cigarrillosDia: "", aniosFuma: "", alcohol: "no", drogas: false, sustanciasDetalle: "", mets: "ge4",
-  capMetodo: "mets", metCat: "", dasi: new Array(12).fill(false), estadoFuncional: "independiente",
+  capMetodo: "mets", metCat: "", dasi: new Array(12).fill(false), estadoFuncional: "independiente", barthel: {}, mustRealizado: "no", mustPeso: "", mustAguda: false,
   // Examen físico / vía aérea
-  ta: "", fc: "", spo2: "", soplo: "ausente", oxigeno: "no", fio2: "", oxDispositivo: "", oxViaArtificial: "iot", oxTamano: "", exCardio: "", exResp: "", exAbdomen: "", exNeuro: "",
+  ta: "", fc: "", fr: "", spo2: "", soplo: "ausente", oxigeno: "no", fio2: "", oxDispositivo: "", oxViaArtificial: "iot", oxTamano: "", exCardio: "", exResp: "", exAbdomen: "", exNeuro: "",
   dolorToracico: "ausente", anginaCCS: "", sintResp: [], sintFalla: [], rosObs: "",
   mallampati: "", mordida: "", aperturaOral: "ge3", distTiro: "ge6", movilidadCervical: "normal", viaAereaObs: "", dentadura: "completa",
   aspiracion: "bajo", aspiracionFactores: [],
@@ -63,7 +63,7 @@ const initial = {
   hb: "", hematocrito: "", plaquetas: "", inr: "", creatinina: "", glucemia: "",
   hbObjetivo: "7", cgPeso: "real",
   ariscatInfeccion: false, ariscatIncision: "periferica", ariscatDuracion: "lt2",
-  ecg: "", rxTorax: "", otrosEstudios: "",
+  ecg: "", rxTorax: "", otrosEstudios: "", ecoRealizado: "no", ecoFevi: "", ecoTapse: "", ecoPsap: "", ecoDiastolica: "", ecoValvular: "", ecoOtros: "",
   // ASA
   asa: "", asaUrgencia: false,
   // Plan
@@ -71,7 +71,7 @@ const initial = {
   ayunoIncluir: true, ayunoClaros: "2", ayunoLigera: "6", ayunoCopiosa: "8",
   conclusion: "", recomendaciones: "",
   // Reservas y disposición postoperatoria
-  reservaCama: "ninguna", reservaHemo: false, solicitaEstudios: "no", examenesAdic: [], examenesAdicOtros: "",
+  reservaCama: "ninguna", reservaHemo: false, solicitaEstudios: "no", examenesAdic: [], examenesAdicOtros: "", solicitaValoraciones: "no", valoraciones: [], valoracionesOtras: "",
   hemoCGR: "", hemoPFC: "", hemoPlaq: "", hemoCrio: "", reservaObs: "", evaluador: "", evaluadorRegistro: "", fechaValoracion: "",
 };
 
@@ -82,6 +82,7 @@ export default function App() {
   const [copiedHC, setCopiedHC] = useState(false);
 
   const set = (k, v) => setF((p) => ({ ...p, [k]: v }));
+  const setBarthel = (k, v) => setF((p) => ({ ...p, barthel: { ...p.barthel, [k]: v } }));
   const toggle = (k) => setF((p) => ({ ...p, [k]: !p[k] }));
   const toggleArr = (k, v) =>
     setF((p) => ({ ...p, [k]: p[k].includes(v) ? p[k].filter((x) => x !== v) : [...p[k], v] }));
@@ -131,7 +132,7 @@ export default function App() {
   const setTieneAntecedentes = (v) =>
     setF((p) => {
       if (v === "si") return { ...p, tieneAntecedentes: v };
-      const keys = ["hta", "cardiopatiaIsq", "cardiopatiaRevasc", "cardiopatiaDetalle", "icc", "arritmia", "valvulopatia", "ecv", "epoc", "asma", "saos", "diabetes", "hipotiroidismo", "erc", "hepatopatia", "rge", "coagulopatia", "cancer", "iccNyha", "iccFevi", "iccEtiologia", "epocO2", "epocDetalle", "asmaExacerbacion", "saosCpap", "saosTitulacion", "diabetesInsulina", "tiroidesTipo", "tiroidesControl", "cancerTipo", "cpBili", "cpAlb", "cpInr", "cpAscitis", "cpEncef", "ecvDetalle", "valvTipo", "valvSeveridad", "valvProtesis", "arrTipo", "arrMarcapasos", "arrAnticoag", "ercEstadio", "ercDialisis", "antecedentesOtros", "ch_mi", "ch_icc", "ch_ecv", "ch_epoc", "ch_renal", "ch_diabetes", "ch_tumor", "ch_hepatopatia"];
+      const keys = ["hta", "cardiopatiaIsq", "cardiopatiaRevasc", "cardiopatiaDetalle", "icc", "arritmia", "valvulopatia", "ecv", "epoc", "asma", "saos", "diabetes", "hipotiroidismo", "erc", "hepatopatia", "rge", "coagulopatia", "cancer", "iccNyha", "iccFevi", "iccEtiologia", "epocO2", "epocDetalle", "asmaExacerbacion", "saosCpap", "saosTitulacion", "diabetesInsulina", "tiroidesTipo", "tiroidesControl", "cancerTipo", "cpBili", "cpAlb", "cpInr", "cpAscitis", "cpEncef", "ecvDetalle", "valvTipo", "valvSeveridad", "valvProtesis", "arrTipo", "arrMarcapasos", "arrAnticoag", "ercEstadio", "ercDialisis", "deci", "deciTipo", "deciControl", "deciBateria", "deciElectrodos", "deciDetalle", "antecedentesOtros", "ch_mi", "ch_icc", "ch_ecv", "ch_epoc", "ch_renal", "ch_diabetes", "ch_tumor", "ch_hepatopatia"];
       const reset = {};
       for (const k of keys) reset[k] = initial[k];
       return { ...p, ...reset, tieneAntecedentes: v };
@@ -220,7 +221,11 @@ export default function App() {
           <div className="space-y-5">
 
             <Section icon={User} title="Datos del paciente">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <Field label="Tipo de valoración">
+                <Seg value={f.tipoValoracion} on={(v) => set("tipoValoracion", v)}
+                  options={[{ v: "ambulatoria", label: "Ambulatoria" }, { v: "intrahospitalaria", label: "Intrahospitalaria" }]} />
+              </Field>
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <Field label="Nombre" className="col-span-2"><Text v={f.nombre} on={(v) => set("nombre", v)} /></Field>
                 <Field label="Documento"><Text v={f.documento} on={(v) => set("documento", v)} /></Field>
                 <Field label="Fecha de nacimiento"><Text type="date" v={f.fechaNacimiento} on={setFechaNac} /></Field>
@@ -230,6 +235,12 @@ export default function App() {
                 </Field>
               </div>
             </Section>
+
+            {f.tipoValoracion === "intrahospitalaria" && (
+              <Section icon={FileText} title="Resumen de enfermedad actual">
+                <Area v={f.enfermedadActual} on={(v) => set("enfermedadActual", v)} rows={4} placeholder="Motivo de ingreso, evolución y hallazgos relevantes previos al procedimiento propuesto…" />
+              </Section>
+            )}
 
             <Section icon={Scissors} title="Procedimiento">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -274,6 +285,12 @@ export default function App() {
                 label="Cirugía de alto riesgo (intraperitoneal, intratorácica o vascular suprainguinal)" />
               <p className="mt-1.5 text-[11px] text-stone-400">Se ajusta automáticamente al elegir el procedimiento ESC; puede modificarla manualmente.</p>
             </Section>
+
+            {f.tipoValoracion === "intrahospitalaria" && (
+              <Section icon={FileText} title="Diagnósticos">
+                <Area v={f.diagnosticos} on={(v) => set("diagnosticos", v)} rows={3} placeholder="Diagnósticos actuales / lista de problemas…" />
+              </Section>
+            )}
 
             <Section icon={HeartPulse} title="Antecedentes patológicos">
               <Field label="¿Antecedentes patológicos?">
@@ -474,6 +491,34 @@ export default function App() {
                     <Seg value={f.ercDialisis} on={(v) => setDialisis(v)}
                       options={[{ v: "no", label: "No" }, { v: "hd", label: "Hemodiálisis" }, { v: "dp", label: "Peritoneal" }]} />
                   </Field>
+                </div>
+              )}
+              <Field label="¿Dispositivo eléctrico cardíaco implantable (marcapasos / DAI / TRC)?" className="mt-3">
+                <Seg value={f.deci} on={(v) => set("deci", v)}
+                  options={[{ v: "no", label: "No" }, { v: "si", label: "Sí" }]} />
+              </Field>
+              {f.deci === "si" && (
+                <div className="mt-3 rounded-md bg-stone-50 p-3 ring-1 ring-stone-200">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <Field label="Tipo de dispositivo">
+                      <Seg value={f.deciTipo} on={(v) => set("deciTipo", v)}
+                        options={[{ v: "marcapaso", label: "Marcapaso" }, { v: "dai", label: "DAI" }, { v: "trc", label: "TRC" }]} />
+                    </Field>
+                    <Field label={`Último control (umbral ${f.deciTipo === "marcapaso" ? "12" : "6"} meses)`}>
+                      <Seg value={f.deciControl} on={(v) => set("deciControl", v)}
+                        options={[{ v: "menor", label: `< ${f.deciTipo === "marcapaso" ? "12" : "6"} m` }, { v: "mayor", label: `> ${f.deciTipo === "marcapaso" ? "12" : "6"} m` }]} />
+                    </Field>
+                    <Field label="Vida útil de batería">
+                      <Seg value={f.deciBateria} on={(v) => set("deciBateria", v)}
+                        options={[{ v: "gt3", label: "> 3 m" }, { v: "lt3", label: "< 3 m" }, { v: "nc", label: "N/C" }]} />
+                    </Field>
+                    <Field label="Colocación de electrodos">
+                      <Seg value={f.deciElectrodos} on={(v) => set("deciElectrodos", v)}
+                        options={[{ v: "lt3", label: "< 3 m" }, { v: "gt3", label: "> 3 m" }, { v: "nc", label: "N/C" }]} />
+                    </Field>
+                  </div>
+                  {f.deciElectrodos === "lt3" && <p className="mt-2 text-[11px] text-amber-700">Electrodos &lt; 3 meses: riesgo de desplazamiento con manipulación/posicionamiento.</p>}
+                  <Field label="Detalle del dispositivo" className="mt-3"><Area v={f.deciDetalle} on={(v) => set("deciDetalle", v)} rows={2} placeholder="Marca, modo, dependencia, otras observaciones…" /></Field>
                 </div>
               )}
               <Field label="Otros antecedentes" className="mt-3"><Area v={f.antecedentesOtros} on={(v) => set("antecedentesOtros", v)} rows={2} /></Field>
@@ -785,6 +830,60 @@ export default function App() {
               </Section>
             )}
 
+            {num(f.edad) >= 65 && (
+              <Section icon={Activity} title="Índice de Barthel (actividades básicas de la vida diaria)">
+                <p className="-mt-1 mb-2 text-[11px] text-stone-400">Independencia funcional basal en AVD. Puntúe el estado habitual previo a la enfermedad aguda. Rango 0–100.</p>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {BARTHEL_ITEMS.map((it) => (
+                    <Field key={it.k} label={it.label}>
+                      <Select value={f.barthel[it.k] ?? ""} on={(v) => setBarthel(it.k, v)}
+                        options={[{ v: "", label: "—" }, ...it.opts.map(([pt, lab]) => ({ v: String(pt), label: `${lab} (${pt})` }))]} />
+                    </Field>
+                  ))}
+                </div>
+                {r.barthel && (
+                  <div className={`mt-3 rounded-md p-2.5 text-center ring-1 ${LEVEL[r.barthel.uiLevel].chip}`}>
+                    <p className="text-[13px] font-semibold">Barthel {r.barthel.score}/100 · {r.barthel.label}{r.barthel.complete ? "" : " · incompleto"}</p>
+                  </div>
+                )}
+                <p className="mt-1.5 text-[11px] text-stone-400">Mahoney & Barthel, 1965. Interpretación: 100 independiente · 60–95 dependencia leve · 40–55 moderada · 20–35 grave · &lt; 20 total.</p>
+              </Section>
+            )}
+
+            <Section icon={Activity} title="Cribado nutricional (MUST)">
+              <Field label="¿Realizar cribado nutricional (MUST)?">
+                <Seg value={f.mustRealizado} on={(v) => set("mustRealizado", v)}
+                  options={[{ v: "no", label: "No" }, { v: "si", label: "Sí" }]} />
+              </Field>
+              {f.mustRealizado === "si" && (
+                <div className="mt-3 rounded-md bg-stone-50 p-3 ring-1 ring-stone-200">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <Field label="Pérdida de peso no intencionada (3–6 meses)">
+                      <Select value={f.mustPeso} on={(v) => set("mustPeso", v)}
+                        options={[
+                          { v: "lt5", label: "< 5% (0)" },
+                          { v: "5a10", label: "5–10% (1)" },
+                          { v: "gt10", label: "> 10% (2)" },
+                        ]} />
+                    </Field>
+                    <Field label="IMC (automático)">
+                      <div className="rounded-md bg-white px-3 py-2 text-[13px] text-stone-600 ring-1 ring-stone-200">
+                        {r.imc ? `${r.imc.toFixed(1)} kg/m² · ${r.must ? r.must.bmiScore : 0} pto(s)` : "Ingrese peso y talla"}
+                      </div>
+                    </Field>
+                  </div>
+                  <Check2 className="mt-3" checked={f.mustAguda} on={() => toggle("mustAguda")}
+                    label="Enfermedad aguda con ingesta nula o probable > 5 días (2)" />
+                  {r.must && (
+                    <div className={`mt-3 rounded-md p-2.5 text-center ring-1 ${LEVEL[r.must.level].chip}`}>
+                      <p className="text-[13px] font-semibold">MUST {r.must.total} · {r.must.label}{r.must.imcNa ? " · falta IMC" : ""}</p>
+                    </div>
+                  )}
+                  <p className="mt-1.5 text-[11px] text-stone-400">BAPEN 2003. Suma de IMC + pérdida de peso + efecto de enfermedad aguda. 0 riesgo bajo · 1 medio · ≥ 2 alto.</p>
+                </div>
+              )}
+            </Section>
+
             <Section icon={Stethoscope} title="Valoración de la vía aérea">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="Mallampati">
@@ -851,9 +950,10 @@ export default function App() {
                 <Field label="Talla (cm)"><Text type="number" v={f.talla} on={(v) => set("talla", v)} /></Field>
                 <Field label="C. cuello (cm)"><Text type="number" v={f.cuello} on={(v) => set("cuello", v)} /></Field>
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-3">
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <Field label="TA (mmHg)"><Text v={f.ta} on={(v) => set("ta", v)} placeholder="120/80" /></Field>
                 <Field label="FC (lpm)"><Text type="number" v={f.fc} on={(v) => set("fc", v)} /></Field>
+                <Field label="FR (rpm)"><Text type="number" v={f.fr} on={(v) => set("fr", v)} /></Field>
                 <Field label="SpO₂ (%)"><Text type="number" v={f.spo2} on={(v) => set("spo2", v)} /></Field>
               </div>
               <Field label="¿Oxígeno suplementario?" className="mt-3">
@@ -980,11 +1080,38 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field label="ECG"><Text v={f.ecg} on={(v) => set("ecg", v)} placeholder="Normal / hallazgos" /></Field>
                 <Field label="Rx tórax"><Text v={f.rxTorax} on={(v) => set("rxTorax", v)} /></Field>
-                <Field label="Otros estudios"><Text v={f.otrosEstudios} on={(v) => set("otrosEstudios", v)} /></Field>
               </div>
+
+              <Field label="¿Ecocardiograma?" className="mt-3">
+                <Seg value={f.ecoRealizado} on={(v) => set("ecoRealizado", v)}
+                  options={[{ v: "no", label: "No" }, { v: "si", label: "Sí" }]} />
+              </Field>
+              {f.ecoRealizado === "si" && (
+                <div className="mt-3 rounded-md bg-stone-50 p-3 ring-1 ring-stone-200">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <Field label="FEVI (%)"><Text type="number" v={f.ecoFevi} on={(v) => set("ecoFevi", v)} /></Field>
+                    <Field label="TAPSE (mm)"><Text type="number" v={f.ecoTapse} on={(v) => set("ecoTapse", v)} /></Field>
+                    <Field label="PSAP (mmHg)"><Text type="number" v={f.ecoPsap} on={(v) => set("ecoPsap", v)} /></Field>
+                    <Field label="Disfunción diastólica">
+                      <Select value={f.ecoDiastolica} on={(v) => set("ecoDiastolica", v)}
+                        options={[
+                          { v: "", label: "—" },
+                          { v: "normal", label: "Sin disfunción" },
+                          { v: "g1", label: "Grado I (relajación alterada)" },
+                          { v: "g2", label: "Grado II (pseudonormal)" },
+                          { v: "g3", label: "Grado III (restrictiva)" },
+                          { v: "indeterminada", label: "Indeterminada" },
+                        ]} />
+                    </Field>
+                  </div>
+                  <Field label="Trastornos valvulares" className="mt-3"><Area v={f.ecoValvular} on={(v) => set("ecoValvular", v)} rows={2} placeholder="Estenosis/insuficiencia, severidad, prótesis…" /></Field>
+                  <Field label="Otros hallazgos" className="mt-3"><Area v={f.ecoOtros} on={(v) => set("ecoOtros", v)} rows={2} placeholder="Dimensiones, alteraciones segmentarias, pericardio…" /></Field>
+                </div>
+              )}
+              <Field label="Otros estudios" className="mt-3"><Text v={f.otrosEstudios} on={(v) => set("otrosEstudios", v)} /></Field>
             </Section>
 
             <Section icon={Wind} title="Riesgo pulmonar postoperatorio (ARISCAT)">
@@ -1025,8 +1152,23 @@ export default function App() {
               <p className="mt-1.5 text-[11px] text-stone-400">Se marca automáticamente si «Carácter» es urgente/emergencia o el NCEPOD es inmediata/urgente; puede modificarlo manualmente.</p>
             </Section>
 
+            {f.tipoValoracion === "intrahospitalaria" && (
+              <Section icon={Pill} title="Tratamiento actual intrahospitalario">
+                <Area v={f.tratamientoIntra} on={(v) => set("tratamientoIntra", v)} rows={4} placeholder="Medicación y soporte intrahospitalario actual (antibióticos, vasoactivos, anticoagulación, líquidos, etc.)…" />
+              </Section>
+            )}
+
             <Section icon={FileText} title="Plan anestésico y conclusión">
-              <Field label="Tipo de anestesia">
+              <Field label="Conclusión / aptitud">
+                <Seg value={f.conclusion} on={(v) => set("conclusion", v)} stack
+                  options={[
+                    { v: "apto", label: "Apto para procedimiento" },
+                    { v: "condiciones", label: "Apto con condiciones" },
+                    { v: "optimizar", label: "Requiere optimización / estudios" },
+                    { v: "diferir", label: "Diferir procedimiento" },
+                  ]} />
+              </Field>
+              <Field label="Tipo de anestesia" className="mt-3">
                 <div className="flex flex-wrap gap-2">
                   {["General", "Regional", "Neuroaxial", "Sedación", "Combinada", "Local"].map((t) => (
                     <button key={t} onClick={() => toggleArr("tipoAnestesia", t)}
@@ -1085,15 +1227,6 @@ export default function App() {
                 </Field>
               )}
               <Field label="Consideraciones especiales" className="mt-3"><Area v={f.consideraciones} on={(v) => set("consideraciones", v)} rows={2} /></Field>
-              <Field label="Conclusión / aptitud" className="mt-3">
-                <Seg value={f.conclusion} on={(v) => set("conclusion", v)} stack
-                  options={[
-                    { v: "apto", label: "Apto para procedimiento" },
-                    { v: "condiciones", label: "Apto con condiciones" },
-                    { v: "optimizar", label: "Requiere optimización / estudios" },
-                    { v: "diferir", label: "Diferir procedimiento" },
-                  ]} />
-              </Field>
               <Field label="Recomendaciones" className="mt-3"><Area v={f.recomendaciones} on={(v) => set("recomendaciones", v)} rows={2} /></Field>
             </Section>
 
@@ -1115,6 +1248,27 @@ export default function App() {
                     ))}
                   </div>
                   <Field label="Otros estudios" className="mt-3"><Text v={f.examenesAdicOtros} on={(v) => set("examenesAdicOtros", v)} placeholder="otros estudios solicitados…" /></Field>
+                </>
+              )}
+            </Section>
+
+            <Section icon={Stethoscope} title="Valoración por especialidad">
+              <Field label="¿Solicita valoración por especialidad?">
+                <Seg value={f.solicitaValoraciones} on={(v) => set("solicitaValoraciones", v)}
+                  options={[{ v: "no", label: "No" }, { v: "si", label: "Sí" }]} />
+              </Field>
+              {f.solicitaValoraciones === "si" && (
+                <>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {ESPECIALIDADES.map((s) => (
+                      <button key={s} onClick={() => toggleArr("valoraciones", s)}
+                        className={`rounded-full px-3 py-1.5 text-[12.5px] ring-1 transition ${
+                          f.valoraciones.includes(s) ? "bg-teal-700 text-white ring-teal-700" : "bg-white text-stone-600 ring-stone-200 hover:ring-stone-300"}`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                  <Field label="Otras / motivo" className="mt-3"><Text v={f.valoracionesOtras} on={(v) => set("valoracionesOtras", v)} placeholder="otra especialidad o motivo de la interconsulta…" /></Field>
                 </>
               )}
             </Section>
@@ -1183,6 +1337,8 @@ export default function App() {
                 <ScoreRow label="Charlson" value={r.charlson.total} note={r.charlson.label} level={r.charlson.level} />
                 {r.childPugh && <ScoreRow label="Child-Pugh" value={`${r.childPugh.score} · ${r.childPugh.clase}`} note={`Clase ${r.childPugh.clase}`} level={r.childPugh.level} />}
                 {r.frail && <ScoreRow label="Fragilidad (CFS)" value={`CFS ${r.frail.n}`} note={r.frail.label} level={r.frail.level} />}
+                {r.barthel && <ScoreRow label="Barthel (AVD)" value={`${r.barthel.score}/100`} note={r.barthel.label} level={r.barthel.uiLevel} />}
+                {r.must && <ScoreRow label="MUST (nutricional)" value={`${r.must.total}`} note={r.must.label} level={r.must.level} />}
               </div>
             </div>
 
@@ -1248,6 +1404,12 @@ function Report({ f, r, onBack, onCopy, copied, onCopyHC, copiedHC }) {
             <RItem k="Estado gestacional" v={f.sexo === "F" && f.gestacion !== "no" ? `${f.gestacion === "si" ? "Gestante" : "Posible embarazo"}${f.gestacion === "si" && f.semanasGestacion ? ` · ${f.semanasGestacion} sem` : ""}${f.fum ? ` · FUM ${f.fum}` : ""}` : ""} full />
           </RGroup>
 
+          {f.tipoValoracion === "intrahospitalaria" && f.enfermedadActual && (
+            <RGroup title="Resumen de enfermedad actual">
+              <RItem k="Resumen" v={f.enfermedadActual} full />
+            </RGroup>
+          )}
+
           <RGroup title="Procedimiento">
             <RItem k="Cirugía" v={f.cirugia} />
             <RItem k="Carácter" v={cap(f.caracter)} />
@@ -1258,8 +1420,15 @@ function Report({ f, r, onBack, onCopy, copied, onCopyHC, copiedHC }) {
             <RItem k="Alto riesgo Qx" v={f.altoRiesgoQx ? "Sí" : ""} />
           </RGroup>
 
+          {f.tipoValoracion === "intrahospitalaria" && f.diagnosticos && (
+            <RGroup title="Diagnósticos">
+              <RItem k="Diagnósticos" v={f.diagnosticos} full />
+            </RGroup>
+          )}
+
           <RGroup title="Antecedentes">
             <RItem k="Patológicos" v={antFull(f, r).join("; ") || "Niega"} full />
+            <RItem k="Dispositivo cardíaco implantable" v={deciStr(f)} full />
             <RItem k="Otros" v={f.antecedentesOtros} full />
             <RItem k="Quirúrgicos" v={f.cirugiasPrevias} full />
             <RItem k="Anestésicos" v={anestesicoStr(f)} full />
@@ -1278,6 +1447,8 @@ function Report({ f, r, onBack, onCopy, copied, onCopyHC, copiedHC }) {
             <RItem k="Alcohol" v={{ no: "No", social: "Social", abuso: "Abuso" }[f.alcohol]} />
             <RItem k="Capacidad funcional" v={r.func.text} />
             <RItem k="Estado funcional (NSQIP)" v={NSQIP_FUNC[f.estadoFuncional]} />
+            {r.barthel && <RItem k="Barthel (AVD)" v={`${r.barthel.score}/100 · ${r.barthel.label}`} />}
+            {r.must && <RItem k="MUST (nutricional)" v={`${r.must.total} · ${r.must.label}`} />}
             <RItem k="Sustancias psicoactivas" v={f.drogas ? ["Sí", f.sustanciasDetalle].filter(Boolean).join(" — ") : ""} full />
           </RGroup>
 
@@ -1323,6 +1494,7 @@ function Report({ f, r, onBack, onCopy, copied, onCopyHC, copiedHC }) {
             <RItem k="ClCr (Cockcroft-Gault)" v={r.crcl ? `${r.crcl} mL/min · ${{ real: "peso real", ideal: "peso ideal", ajustado: "peso ajustado" }[f.cgPeso]}` : ""} />
             <RItem k="Glucemia" v={f.glucemia && `${f.glucemia} mg/dL`} />
             <RItem k="ECG" v={f.ecg} /><RItem k="Rx tórax" v={f.rxTorax} /><RItem k="Otros" v={f.otrosEstudios} />
+            {f.ecoRealizado === "si" && <RItem k="Ecocardiograma" v={ecoStr(f)} full />}
             <RItem k="Volemia estimada" v={r.ebv ? `${Math.round(r.ebv)} mL` : ""} />
             <RItem k="Pérdida permisible (Gross)" v={r.mabl ? `${Math.round(r.mabl)} mL · Hb objetivo ${f.hbObjetivo} g/dL` : ""} full />
           </RGroup>
@@ -1338,9 +1510,17 @@ function Report({ f, r, onBack, onCopy, copied, onCopyHC, copiedHC }) {
               <RScore k="ARISCAT (pulmonar)" v={`${r.ariscat.score} · ${r.ariscat.label} · CPP ${r.ariscat.pct}`} />
               <RScore k="Charlson (edad-aj.)" v={`${r.charlson.total} · superv. 10a ~${r.charlson.surv}%`} />
               {r.frail && <RScore k="Fragilidad CFS" v={`${r.frail.n} · ${r.frail.label}${r.frail.frail ? " · fragilidad" : ""}`} />}
+              {r.barthel && <RScore k="Barthel (AVD)" v={`${r.barthel.score}/100 · ${r.barthel.label}`} />}
+              {r.must && <RScore k="MUST (nutricional)" v={`${r.must.total} · ${r.must.label}`} />}
               <RScore k="IMC" v={r.imc ? r.imc.toFixed(1) : "—"} />
             </div>
           </div>
+
+          {f.tipoValoracion === "intrahospitalaria" && f.tratamientoIntra && (
+            <RGroup title="Tratamiento actual intrahospitalario">
+              <RItem k="Tratamiento" v={f.tratamientoIntra} full />
+            </RGroup>
+          )}
 
           <RGroup title="Plan anestésico">
             <RItem k="Tipo de anestesia" v={anestStr(f)} full />
@@ -1379,6 +1559,7 @@ function Report({ f, r, onBack, onCopy, copied, onCopyHC, copiedHC }) {
             <RItem k="Cama postoperatoria" v={{ ninguna: "Hospitalización en sala", intermedio: "Cuidado intermedio", uci: "UCI" }[f.reservaCama]} />
             <RItem k="Hemoderivados" v={f.reservaHemo ? hemoStr(f) : ""} full />
             <RItem k="Estudios complementarios solicitados" v={f.solicitaEstudios === "si" ? [f.examenesAdic.join(", "), f.examenesAdicOtros].filter(Boolean).join(", ") : ""} full />
+            <RItem k="Valoración por especialidad" v={valoracionesStr(f)} full />
             <RItem k="Observaciones" v={f.reservaObs} full />
           </RGroup>
 
@@ -1427,6 +1608,16 @@ function compute(f) {
   const frail = edad >= 65 && cfsN
     ? { n: cfsN, label: CFS_LEVELS.find((c) => c.n === cfsN).label, level: cfsN >= 7 ? "high" : cfsN >= 5 ? "mod" : "low", frail: cfsN >= 5 }
     : null;
+  let barthel = null;
+  {
+    const bAns = BARTHEL_ITEMS.filter((it) => f.barthel && f.barthel[it.k] !== undefined && f.barthel[it.k] !== "");
+    if (bAns.length) {
+      const bScore = bAns.reduce((s, it) => s + Number(f.barthel[it.k]), 0);
+      const bLevel = bScore === 100 ? "independiente" : bScore >= 60 ? "leve" : bScore >= 40 ? "moderada" : bScore >= 20 ? "grave" : "total";
+      const uiLevel = bLevel === "independiente" || bLevel === "leve" ? "low" : bLevel === "moderada" ? "mod" : "high";
+      barthel = { score: bScore, level: bLevel, uiLevel, label: BARTHEL_LEVEL[bLevel], complete: bAns.length === BARTHEL_ITEMS.length };
+    }
+  }
   let childPugh = null;
   if (f.hepatopatia) {
     const cp = (parseInt(f.cpBili) || 1) + (parseInt(f.cpAlb) || 1) + (parseInt(f.cpInr) || 1) + (parseInt(f.cpAscitis) || 1) + (parseInt(f.cpEncef) || 1);
@@ -1442,6 +1633,17 @@ function compute(f) {
     : imc < 35 ? { label: "Obesidad I", level: "mod" }
     : imc < 40 ? { label: "Obesidad II", level: "high" }
     : { label: "Obesidad III", level: "high" };
+
+  let must = null;
+  if (f.mustRealizado === "si") {
+    const bmiScore = imc <= 0 ? 0 : imc >= 20 ? 0 : imc >= 18.5 ? 1 : 2;
+    const lossScore = { lt5: 0, "5a10": 1, gt10: 2 }[f.mustPeso] ?? 0;
+    const acuteScore = f.mustAguda ? 2 : 0;
+    const mustTotal = bmiScore + lossScore + acuteScore;
+    const level = mustTotal >= 2 ? "high" : mustTotal === 1 ? "mod" : "low";
+    const label = mustTotal >= 2 ? "Riesgo alto" : mustTotal === 1 ? "Riesgo medio" : "Riesgo bajo";
+    must = { total: mustTotal, level, label, bmiScore, lossScore, acuteScore, imcNa: imc <= 0 };
+  }
 
   // Pesos para dosificación
   const sexM = f.sexo === "M", sexF = f.sexo === "F";
@@ -1632,6 +1834,12 @@ function compute(f) {
   if (rcri.level === "high") alerts.push({ level: "high", text: "Riesgo cardíaco perioperatorio elevado: valore optimización / interconsulta." });
   if (cardRisk.level === "high") alerts.push({ level: "mod", text: "Procedimiento de alto riesgo cardíaco (ESC 2022, > 5%)." });
   if (f.icc && (f.iccNyha === "3" || f.iccNyha === "4")) alerts.push({ level: "high", text: "Insuficiencia cardíaca NYHA III–IV: alto riesgo perioperatorio; valore optimización." });
+  if (f.deci === "si") {
+    const deciThr = f.deciTipo === "marcapaso" ? 12 : 6;
+    if (f.deciControl === "mayor") alerts.push({ level: "mod", text: `Dispositivo cardíaco implantable sin control reciente (> ${deciThr} meses): interrogación/valoración por electrofisiología previa a cirugía.` });
+    if (f.deciBateria === "lt3") alerts.push({ level: "high", text: "Batería de dispositivo cardíaco < 3 meses de vida útil: valoración por electrofisiología antes del procedimiento." });
+    if (f.deciElectrodos === "lt3") alerts.push({ level: "mod", text: "Electrodos de dispositivo cardíaco < 3 meses: riesgo de desplazamiento con manipulación/posicionamiento." });
+  }
   if (f.epoc && f.epocO2) alerts.push({ level: "mod", text: "EPOC con O₂ domiciliario: optimización respiratoria y riesgo pulmonar." });
   if (f.asma && f.asmaExacerbacion === "lt4") alerts.push({ level: "mod", text: "Asma con exacerbación reciente (< 4 semanas): mayor riesgo de broncoespasmo; valore optimización o diferir si es electiva." });
   if (f.dolorToracico === "anginoso") {
@@ -1667,7 +1875,7 @@ function compute(f) {
 
   if (childPugh && childPugh.clase !== "A") alerts.push({ level: childPugh.clase === "C" ? "high" : "mod", text: `Hepatopatía Child-Pugh ${childPugh.clase} (${childPugh.score} ptos): riesgo perioperatorio elevado; valore optimización e interconsulta.` });
 
-  return { imc, imcCat, ibw, lbm, adjbw, ebv, mabl, egfr, egfrCat, crcl, dasi, func, ipa, cardRisk, ariscat, vad, stop, rcri, apfel, asaLevel, charlson, frail, childPugh, alerts };
+  return { imc, imcCat, ibw, lbm, adjbw, ebv, mabl, egfr, egfrCat, crcl, dasi, func, ipa, cardRisk, ariscat, vad, stop, rcri, apfel, asaLevel, charlson, frail, barthel, must, childPugh, alerts };
 }
 
 /* ──────────────────────────────── Helpers UI ─────────────────────────────── */
@@ -1809,6 +2017,19 @@ const NCEPOD = [
 // Correspondencia Carácter → urgencia clínica NCEPOD (mapeo por defecto, editable)
 const CAR_TO_NCE = { electiva: "electiva", urgente: "urgente", emergencia: "inmediata" };
 // Clinical Frailty Scale (Rockwood, v2.0). Validada solo en ≥ 65 años; fragilidad con CFS ≥ 5
+const BARTHEL_ITEMS = [
+  { k: "alimentacion", label: "Alimentación", opts: [[10, "Independiente"], [5, "Necesita ayuda"], [0, "Dependiente"]] },
+  { k: "bano", label: "Baño", opts: [[5, "Independiente"], [0, "Dependiente"]] },
+  { k: "aseo", label: "Aseo personal", opts: [[5, "Independiente"], [0, "Necesita ayuda"]] },
+  { k: "vestido", label: "Vestido", opts: [[10, "Independiente"], [5, "Necesita ayuda"], [0, "Dependiente"]] },
+  { k: "deposiciones", label: "Deposiciones", opts: [[10, "Continente"], [5, "Accidente ocasional"], [0, "Incontinente"]] },
+  { k: "miccion", label: "Micción", opts: [[10, "Continente"], [5, "Accidente ocasional"], [0, "Incontinente"]] },
+  { k: "retrete", label: "Uso del retrete", opts: [[10, "Independiente"], [5, "Necesita ayuda"], [0, "Dependiente"]] },
+  { k: "traslado", label: "Traslado sillón/cama", opts: [[15, "Independiente"], [10, "Mínima ayuda"], [5, "Gran ayuda"], [0, "Incapaz"]] },
+  { k: "deambulacion", label: "Deambulación", opts: [[15, "Independiente"], [10, "Camina con ayuda"], [5, "Independiente en silla de ruedas"], [0, "Inmóvil"]] },
+  { k: "escaleras", label: "Escaleras", opts: [[10, "Independiente"], [5, "Necesita ayuda"], [0, "Incapaz"]] },
+];
+const BARTHEL_LEVEL = { independiente: "Independiente", leve: "Dependencia leve", moderada: "Dependencia moderada", grave: "Dependencia grave", total: "Dependencia total" };
 const CFS_LEVELS = [
   { n: 1, label: "Muy en forma", desc: "Robusto, activo, enérgico; ejercicio regular; entre los más en forma para su edad." },
   { n: 2, label: "En forma", desc: "Sin enfermedad activa; algo menos en forma que el nivel 1; activo de forma ocasional." },
@@ -1843,6 +2064,7 @@ const CCS_ANGINA = [
 const RESP_SINTOMAS = ["Disnea de esfuerzo", "Tos", "Sibilancias", "Expectoración", "Hemoptisis"];
 const FALLA_SINTOMAS = ["Ortopnea", "Disnea paroxística nocturna", "Edema de miembros inferiores"];
 const EXAMENES_ADIC = ["Electrocardiograma", "NT-proBNP", "Troponina", "Ecocardiograma transtorácico", "Prueba de esfuerzo", "Ergoespirometría (CPET)", "Coronariografía", "Radiografía de tórax", "Espirometría / PFR", "Gasometría arterial"];
+const ESPECIALIDADES = ["Cardiología", "Electrofisiología", "Neumología", "Geriatría", "Nefrología", "Endocrinología", "Hematología", "Medicina interna", "Neurología", "Nutrición"];
 const MED_PERIOP = [
   { id: "isglt2", label: "iSGLT2 (gliflozinas)", nota: "Suspender 3–4 días antes (riesgo de cetoacidosis euglucémica). En falla cardíaca, valore el balance riesgo-beneficio." },
   { id: "glp1", label: "Agonistas GLP-1", nota: "Manejo individualizado / decisión compartida (consenso multisociedad 2024); evalúe vaciamiento gástrico y riesgo de aspiración. Si se decide suspender: diarios el día de cirugía, semanales 1 semana antes." },
@@ -1926,6 +2148,35 @@ function anestStr(f) { return f.tipoAnestesia.map((t) => ANEST_LABEL[t] || t).jo
 function antList(f) {
   return Object.keys(ANT_LABELS).filter((k) => f[k]).map((k) => ANT_LABELS[k]).join(", ");
 }
+const ECO_DIAST = { normal: "sin disfunción diastólica", g1: "disfunción diastólica grado I (relajación alterada)", g2: "disfunción diastólica grado II (pseudonormal)", g3: "disfunción diastólica grado III (restrictiva)", indeterminada: "disfunción diastólica indeterminada" };
+const DECI_TIPO = { marcapaso: "Marcapaso", dai: "DAI", trc: "TRC" };
+function deciStr(f) {
+  if (f.deci !== "si") return "";
+  const thr = f.deciTipo === "marcapaso" ? "12" : "6";
+  const control = f.deciControl === "menor" ? `último control < ${thr} meses` : f.deciControl === "mayor" ? `último control > ${thr} meses` : "";
+  const bat = { gt3: "batería > 3 meses", lt3: "batería < 3 meses" }[f.deciBateria] || "";
+  const elec = f.deciElectrodos === "lt3" ? "electrodos < 3 meses (riesgo de desplazamiento)" : f.deciElectrodos === "gt3" ? "electrodos > 3 meses" : "";
+  const parts = [DECI_TIPO[f.deciTipo], control, bat, elec, f.deciDetalle].filter(Boolean);
+  return parts.length ? parts.join(", ") : "Sí";
+}
+function valoracionesStr(f) {
+  if (f.solicitaValoraciones !== "si") return "";
+  const esp = f.valoraciones.join(", ");
+  if (esp && f.valoracionesOtras) return `${esp} (motivo: ${f.valoracionesOtras})`;
+  return esp || f.valoracionesOtras || "";
+}
+function ecoStr(f) {
+  if (f.ecoRealizado !== "si") return "";
+  const parts = [
+    f.ecoFevi && `FEVI ${f.ecoFevi}%`,
+    f.ecoDiastolica && ECO_DIAST[f.ecoDiastolica],
+    f.ecoTapse && `TAPSE ${f.ecoTapse} mm`,
+    f.ecoPsap && `PSAP ${f.ecoPsap} mmHg`,
+    f.ecoValvular && `valvular: ${f.ecoValvular}`,
+    f.ecoOtros && f.ecoOtros,
+  ].filter(Boolean);
+  return parts.length ? parts.join(", ") : "";
+}
 function ncepodStr(f) {
   if (!f.ncepod) return "";
   const o = NCEPOD.find((x) => x.v === f.ncepod);
@@ -1992,9 +2243,11 @@ function buildReport(f, r) {
   if (f.sexo === "F" && f.gestacion !== "no") L.push(`Estado gestacional: ${f.gestacion === "si" ? `gestante${f.semanasGestacion ? ` (${f.semanasGestacion} sem)` : ""}` : "posible embarazo"}${f.fum ? ` · FUM ${f.fum}` : ""}`);
   L.push(`Peso/Talla: ${f.peso || "—"} kg / ${f.talla || "—"} cm  IMC: ${r.imc ? r.imc.toFixed(1) : "—"} (${r.imcCat.label})`);
   L.push(`Peso ideal (Devine): ${r.ibw ? r.ibw.toFixed(1) + " kg" : "—"} · Masa libre de grasa (FFM, Janmahasatian): ${r.lbm ? r.lbm.toFixed(1) + " kg" : "—"} · Peso ajustado (AdjBW): ${r.adjbw ? r.adjbw.toFixed(1) + " kg" : "—"}`);
+  if (f.tipoValoracion === "intrahospitalaria" && f.enfermedadActual) L.push(`Enfermedad actual: ${f.enfermedadActual}`);
   L.push(`Cirugía: ${f.cirugia || "—"} (${cap(f.caracter)})${f.lateralidad !== "na" ? ` · ${LAT[f.lateralidad]}` : ""}${f.altoRiesgoQx ? " · alto riesgo" : ""}`);
   if (f.ncepod) L.push(`Urgencia clínica (NCEPOD 2004): ${ncepodStr(f)}`);
   if (f.procedimientoEsc) L.push(`Procedimiento (ESC 2022): ${f.procedimientoEsc} — riesgo cardíaco ${r.cardRisk.label}`);
+  if (f.tipoValoracion === "intrahospitalaria" && f.diagnosticos) L.push(`Diagnósticos: ${f.diagnosticos}`);
   L.push("");
   const antsR = antFull(f, r);
   if (antsR.length) {
@@ -2004,6 +2257,7 @@ function buildReport(f, r) {
   } else {
     L.push(`Antecedentes patológicos: Niega${f.antecedentesOtros ? ` · ${f.antecedentesOtros}` : ""}`);
   }
+  if (f.deci === "si") L.push(`Dispositivo cardíaco implantable: ${deciStr(f)}`);
   L.push(`Quirúrgicos: ${f.cirugiasPrevias || "—"}`);
   L.push(`Anestésicos: ${anestesicoStr(f) || "—"}`);
   if (f.transfusion) L.push(`Transfusión: ${f.transfusion === "si" ? `sí${f.transfusionDetalle ? ` (${f.transfusionDetalle})` : ""}` : f.transfusion === "rechaza" ? "rechaza hemoderivados" : "no"}`);
@@ -2035,10 +2289,14 @@ function buildReport(f, r) {
   L.push(`Charlson (edad-aj.): ${r.charlson.total} — superv. estimada 10 años ~${r.charlson.surv}%`);
   L.push(`ARISCAT (pulmonar): ${r.ariscat.score} — ${r.ariscat.label}, CPP estimadas ${r.ariscat.pct}`);
   if (r.frail) L.push(`Fragilidad (CFS): ${r.frail.n} — ${r.frail.label}${r.frail.frail ? " (fragilidad)" : ""}`);
+  if (r.barthel) L.push(`Barthel (AVD): ${r.barthel.score}/100 — ${r.barthel.label}`);
+  if (r.must) L.push(`MUST (nutricional): ${r.must.total} — ${r.must.label}`);
   L.push(`Hto: ${f.hematocrito ? f.hematocrito + "%" : "—"} · Volemia est.: ${r.ebv ? Math.round(r.ebv) + " mL" : "—"} · Pérdida permisible (Gross, Hb objetivo ${f.hbObjetivo || "—"} g/dL): ${r.mabl ? Math.round(r.mabl) + " mL" : "—"}`);
   if (r.egfr) L.push(`TFG (CKD-EPI 2021): ${r.egfr} mL/min/1,73m² (${r.egfrCat.stage} · ${r.egfrCat.label})`);
   if (r.crcl) L.push(`ClCr (Cockcroft-Gault, ${{ real: "peso real", ideal: "peso ideal", ajustado: "peso ajustado" }[f.cgPeso]}): ${r.crcl} mL/min`);
+  if (ecoStr(f)) L.push(`Ecocardiograma: ${ecoStr(f)}`);
   L.push("");
+  if (f.tipoValoracion === "intrahospitalaria" && f.tratamientoIntra) L.push(`Tratamiento actual intrahospitalario: ${f.tratamientoIntra}`);
   L.push(`Plan: ${anestStr(f) || "—"}`);
   if (f.ayunoIncluir) {
     L.push("Recomendaciones de ayuno preoperatorio (consenso 2026):");
@@ -2051,6 +2309,7 @@ function buildReport(f, r) {
   if (f.medPeriop.length || f.medPeriopPlan) L.push(`Medicación crónica perioperatoria: ${[MED_PERIOP.filter((m) => f.medPeriop.includes(m.id)).map((m) => m.label).join(", "), f.medPeriopPlan].filter(Boolean).join(" — ")}`);
   L.push(`Disposición postop.: ${{ ninguna: "Hospitalización en sala", intermedio: "Cuidado intermedio", uci: "UCI" }[f.reservaCama]}${f.reservaHemo ? " · Hemoderivados: " + hemoStr(f) : ""}`);
   if (f.solicitaEstudios === "si" && (f.examenesAdic.length || f.examenesAdicOtros)) L.push(`Estudios complementarios solicitados: ${[f.examenesAdic.join(", "), f.examenesAdicOtros].filter(Boolean).join(", ")}`);
+  if (valoracionesStr(f)) L.push(`Valoración por especialidad: ${valoracionesStr(f)}`);
   L.push("");
   L.push(`CONCLUSIÓN: ${CONCL[f.conclusion] || "Sin definir"}`);
   if (f.recomendaciones) L.push(`Recomendaciones: ${f.recomendaciones}`);
@@ -2061,7 +2320,224 @@ function buildReport(f, r) {
   return L.join("\n");
 }
 
+function analisisNarrativa(f, r) {
+  const A = [];
+  const sexoN = f.sexo === "M" ? "masculino" : f.sexo === "F" ? "femenino" : "—";
+  const asaTxt = f.asa ? toRoman(f.asa) + (f.asaUrgencia ? "E" : "") : "—";
+  const riesgoProc = { low: "bajo", mod: "intermedio", high: "alto" }[r.cardRisk.level] || "no determinado";
+  const card = [];
+  if (f.cardiopatiaIsq) card.push(`cardiopatia isquemica${f.cardiopatiaRevasc && f.cardiopatiaRevasc !== "ninguna" ? ` (${REVASC[f.cardiopatiaRevasc]})` : ""}`);
+  if (f.icc) card.push(`insuficiencia cardiaca${f.iccNyha ? ` NYHA ${toRoman(f.iccNyha)}` : ""}`);
+  if (f.arritmia) card.push(`arritmia${f.arrTipo ? ` (${f.arrTipo})` : ""}`);
+  if (f.valvulopatia) card.push(`valvulopatia${f.valvTipo ? ` ${f.valvTipo}` : ""}${f.valvSeveridad ? ` ${VALV_SEV[f.valvSeveridad]}` : ""}`);
+  const cardTxt = card.length ? `con antecedente de ${card.join(", ")}, ` : "";
+  const leeClase = r.rcri.n >= 3 ? "IV" : r.rcri.n === 2 ? "III" : r.rcri.n === 1 ? "II" : "I";
+  const leePct = r.rcri.n >= 3 ? "11" : r.rcri.n === 2 ? "6.6" : r.rcri.n === 1 ? "0.9" : "0.4";
+  const vadTxt = r.vad.n > 0 ? "con" : "sin";
+  const aspTxt = f.aspiracion === "aumentado" ? "riesgo aumentado de aspiracion pulmonar" : "bajo riesgo de aspiracion pulmonar";
+  const narrativa = `Paciente ${sexoN} de ${f.edad || "—"} años ASA ${asaTxt} quien requiere ${f.cirugia || "el procedimiento descrito"}, procedimiento quirurgico de riesgo ${riesgoProc}${f.ncepod ? `, NCEPOD ${ncepodStr(f)}` : ""}, capacidad funcional ${r.func.text}, ${cardTxt}indice de Lee con puntaje de ${r.rcri.n} (clase ${leeClase}, riesgo del ${leePct}% de evento cardiaco mayor), ${vadTxt} predictores de via aerea dificil. ${aspTxt}.`;
+
+  if (f.conclusion === "apto" || f.conclusion === "condiciones") {
+    A.push(`${narrativa} Se puede programar con las siguientes recomendaciones:`);
+    const recs = [];
+    if (f.ayunoIncluir) recs.push(`Ayuno preoperatorio: liquidos claros ${f.ayunoClaros} h, comida ligera ${f.ayunoLigera} h, comida copiosa/grasa ${f.ayunoCopiosa} h.${f.ayuno ? ` ${f.ayuno}.` : ""}`);
+    else if (f.ayuno) recs.push(`Ayuno: ${f.ayuno}.`);
+    if (f.medPeriopPlan) recs.push(`${f.medPeriopPlan}.`);
+    if (f.anticoagulantes === "si" && f.anticoagPlanDetalle) recs.push(`${f.anticoagPlanDetalle}.`);
+    if (r.vad.n >= 2 || f.aspiracion === "aumentado") {
+      const p = [];
+      if (r.vad.n >= 2) p.push("Disponer equipo y plan de via aerea dificil");
+      if (f.aspiracion === "aumentado") p.push(`riesgo aumentado de aspiracion: considerar induccion de secuencia rapida${r.vad.n >= 2 ? "/intubación despierto" : ""} y profilaxis`);
+      recs.push(p.join("; ") + ".");
+    }
+    if (f.solicitaEstudios === "si" && (f.examenesAdic.length || f.examenesAdicOtros)) recs.push(`Se solicita ${[f.examenesAdic.join(", "), f.examenesAdicOtros].filter(Boolean).join(", ")}.`);
+    if (valoracionesStr(f)) recs.push(`Valoracion por ${valoracionesStr(f)}.`);
+    if (f.reservaHemo) recs.push(`Reserva de hemoderivados: ${hemoStr(f)}.`);
+    const disp = [];
+    const camaTxt = { ninguna: "", intermedio: "reserva de cama en cuidado intermedio", uci: "reserva de cama en UCI" }[f.reservaCama];
+    if (camaTxt) disp.push(camaTxt);
+    if (f.reservaObs) disp.push(f.reservaObs);
+    if (disp.length) recs.push(`${disp.join("; ")}.`);
+    if (f.recomendaciones) (f.recomendaciones || "").split(/\n+/).map((s) => s.trim()).filter(Boolean).forEach((s) => recs.push(s));
+    if (recs.length) recs.forEach((rl, i) => A.push(`${i + 1}. ${rl}`));
+  } else {
+    if (f.conclusion === "optimizar") A.push(`${narrativa} Se considera que el paciente se beneficia de completar estudios${valoracionesStr(f) ? " y lograr optimizacion" : ""} previo a procedimiento quirurgico:`);
+    else A.push(`${narrativa} Se difiere el procedimiento. Se recomienda:`);
+    const recs = [];
+    if (f.solicitaEstudios === "si" && (f.examenesAdic.length || f.examenesAdicOtros)) recs.push(`Se solicita ${[f.examenesAdic.join(", "), f.examenesAdicOtros].filter(Boolean).join(", ")}.`);
+    if (valoracionesStr(f)) recs.push(`Valoracion por ${valoracionesStr(f)}.`);
+    if (f.medPeriopPlan) recs.push(`${f.medPeriopPlan}.`);
+    if (f.anticoagulantes === "si" && f.anticoagPlanDetalle) recs.push(`${f.anticoagPlanDetalle}.`);
+    recs.push("Requiere nueva valoracion preanestesica una vez completados estudios e interconsultas y lograda la optimizacion.");
+    if (f.recomendaciones) (f.recomendaciones || "").split(/\n+/).map((s) => s.trim()).filter(Boolean).forEach((s) => recs.push(s));
+    recs.forEach((rl, i) => A.push(`${i + 1}. ${rl}`));
+  }
+  return A;
+}
+function planAnalisisLines(f, r) {
+  const A = [];
+  A.push(`Plan anestesico: ${anestStr(f) || "No definido"}.`);
+  if (f.ayunoIncluir) A.push(`Ayuno: claros ${f.ayunoClaros} h, comida ligera ${f.ayunoLigera} h, comida copiosa ${f.ayunoCopiosa} h.`);
+  if (f.ayuno) A.push(`Ayuno (adicional): ${f.ayuno}.`);
+  if (f.consideraciones) A.push(`Consideraciones: ${f.consideraciones}.`);
+  if (f.medPeriopPlan) A.push(`Medicacion cronica perioperatoria: ${f.medPeriopPlan}.`);
+  A.push(`Disposicion postoperatoria: ${{ ninguna: "Hospitalizacion en sala", intermedio: "Cuidado intermedio", uci: "UCI" }[f.reservaCama]}.${f.reservaHemo ? ` Hemoderivados: ${hemoStr(f)}.` : ""}`);
+  if (f.solicitaEstudios === "si" && (f.examenesAdic.length || f.examenesAdicOtros)) A.push(`Estudios complementarios solicitados: ${[f.examenesAdic.join(", "), f.examenesAdicOtros].filter(Boolean).join(", ")}.`);
+  A.push("");
+  A.push(`Conclusion: ${CONCL[f.conclusion] || "Sin definir"}.`);
+  if (f.conclusion === "apto" || f.conclusion === "condiciones") {
+    A.push("");
+    A.push("ANALISIS:");
+    analisisNarrativa(f, r).forEach((l) => A.push(l));
+  } else if (f.recomendaciones) {
+    A.push(`Recomendaciones: ${f.recomendaciones}.`);
+  }
+  return A;
+}
+function buildHCIntra(f, r) {
+  const J = (a) => a.filter(Boolean).join(", ");
+  const sexo = f.sexo === "M" ? "Masculino" : f.sexo === "F" ? "Femenino" : "No registra";
+  const sep = (t) => `--------------------${t}--------------------`;
+  const leeClase = r.rcri.n >= 3 ? "IV" : r.rcri.n === 2 ? "III" : r.rcri.n === 1 ? "II" : "I";
+  const leePct = r.rcri.n >= 3 ? "11" : r.rcri.n === 2 ? "6.6" : r.rcri.n === 1 ? "0.9" : "0.4";
+  const ariscatRiesgo = r.ariscat.score < 26 ? "bajo" : r.ariscat.score < 45 ? "intermedio" : "alto";
+  const L = [];
+  L.push("VALORACION PREANESTESICA - INTRAHOSPITALARIA");
+  L.push("");
+  L.push(`Nombre: ${f.nombre || "No registra"}`);
+  L.push(`Documento: ${f.documento || "No registra"}`);
+  if (f.fechaNacimiento) L.push(`Fecha de nacimiento: ${f.fechaNacimiento}`);
+  L.push(`Edad: ${f.edad || "—"}`);
+  L.push(`Sexo: ${sexo}`);
+  if (f.sexo === "F" && f.gestacion !== "no") L.push(`Estado gestacional: ${f.gestacion === "si" ? `gestante${f.semanasGestacion ? ` (${f.semanasGestacion} semanas)` : ""}` : "posible embarazo"}.${f.fum ? ` FUM ${f.fum}.` : ""}`);
+  L.push("");
+
+  L.push(sep("RESUMEN DE HISTORIA CLINICA"));
+  L.push(f.enfermedadActual || "—");
+  L.push("");
+
+  L.push(sep("PROCEDIMIENTO QUIRURGICO"));
+  L.push(f.cirugia || "—");
+  L.push("");
+
+  L.push(sep("DIAGNOSTICOS"));
+  L.push(f.diagnosticos || "—");
+  L.push("");
+
+  L.push(sep("ANTECEDENTES"));
+  const ants = antFull(f, r);
+  L.push(`Patologicos: ${ants.length ? ants.join("; ") : "Niega"}.${f.antecedentesOtros ? ` Otros: ${f.antecedentesOtros}.` : ""}`);
+  if (f.deci === "si") L.push(`Dispositivo cardiaco implantable: ${deciStr(f)}.`);
+  L.push(`Quirurgicos: ${f.cirugiasPrevias || "No registra"}.`);
+  const evHC = [f.vadPrevia && "via aerea dificil previa", f.nvpoPrevia && "NVPO/cinetosis", f.hxFamiliarHM && "hist. familiar de hipertermia maligna"].filter(Boolean).join(", ");
+  const anHC = [f.anestesiaPrevia.length && `tipos previos: ${f.anestesiaPrevia.join(", ")}`, evHC && `eventos: ${evHC}`, f.complicaciones && `complicaciones: ${f.complicaciones}`].filter(Boolean).join("; ");
+  L.push(`Anestesicos: ${anHC || "No registra"}.`);
+  if (f.transfusion) L.push(`Transfusion previa: ${f.transfusion === "si" ? `si${f.transfusionDetalle ? ` (${f.transfusionDetalle})` : ""}` : f.transfusion === "rechaza" ? "rechaza hemoderivados" : "no"}.`);
+  L.push(`Medicamentos: ${f.tomaMedicacion === "no" ? "Niega" : (f.medicacion || "Sin especificar")}.${f.anticoagulantes === "si" ? ` Anticoagulacion/antiagregacion: ${f.anticoagDetalle || "Si"}.` : ""}`);
+  L.push(`Alergias: ${f.tieneAlergias === "no" ? "Niega" : (f.alergias || "Sin especificar")}.`);
+  const hab = [];
+  if (f.tabaco === "activo" || f.tabaco === "ex") hab.push(`Tabaquismo ${f.tabaco === "activo" ? "activo" : "ex-fumador"}${r.ipa ? ` (IPA ${r.ipa.toFixed(1)})` : ""}`);
+  if (f.alcohol === "social" || f.alcohol === "abuso") hab.push(`Alcohol ${f.alcohol}`);
+  if (f.drogas) hab.push(`Sustancias psicoactivas${f.sustanciasDetalle ? ` (${f.sustanciasDetalle})` : ""}`);
+  L.push(`Habitos: ${hab.length ? J(hab) : "Niega"}.`);
+  L.push("");
+
+  L.push(sep("REVISION POR SISTEMAS"));
+  L.push(`-DEPENDENCIA FUNCIONAL: ${NSQIP_FUNC[f.estadoFuncional]}`);
+  const capMethod = { mets: "METs", valad: "METs, escala categorica", dasi: "DASI" }[f.capMetodo] || "METs";
+  L.push(`-CAPACIDAD FUNCIONAL (${capMethod}): ${r.func.text}`);
+  if (r.barthel) L.push(`-BARTHEL (AVD): ${r.barthel.score}/100 - ${r.barthel.label}`);
+  const ros = [`Dolor toracico ${DOLOR_TOR[f.dolorToracico]}${f.dolorToracico === "anginoso" && f.anginaCCS ? ` (angina CCS ${toRoman(f.anginaCCS)})` : ""}`];
+  if (f.sintResp.length) ros.push(`Respiratorios: ${f.sintResp.join(", ")}`);
+  if (f.sintFalla.length) ros.push(`Falla cardiaca: ${f.sintFalla.join(", ")}`);
+  if (f.rosObs) ros.push(f.rosObs);
+  L.push("");
+  L.push(ros.join(". ") + ".");
+  L.push("");
+
+  L.push(sep("EXAMEN FISICO"));
+  L.push(`-SIGNOS VITALES: TA: ${f.ta || "—"} MMHG, FC: ${f.fc || "—"} LPM, FR: ${f.fr || "—"} RPM, SPO2: ${f.spo2 || "—"}% CON FIO2: ${f.oxigeno === "si" && f.fio2 ? f.fio2 : "21"}%`);
+  const antrop = [`Peso ${f.peso || "—"} kg`, `Talla ${f.talla || "—"} cm`, `IMC ${r.imc ? r.imc.toFixed(1) : "—"} (${r.imcCat.label})`, r.ibw && `IBW ${r.ibw.toFixed(1)} kg`, r.lbm && `FFM ${r.lbm.toFixed(1)} kg`, r.adjbw && `AdjBW ${r.adjbw.toFixed(1)} kg`].filter(Boolean).join(", ");
+  L.push(`-ANTROPOMETRICOS: ${antrop}`);
+  L.push("");
+  const aoTxt = f.aperturaOral === "lt3" ? "AO < 3 CM" : "AO >= 3 CM";
+  const dtmTxt = f.distTiro === "lt6" ? "DTM < 6 CM" : "DTM >= 6 CM";
+  const mallTxt = f.mallampati ? `MALLAMPATI ${f.mallampati}` : "MALLAMPATI SIN DATO";
+  const ulbtTxt = f.mordida ? `TEST DE MORDIDA CLASE ${toRoman(f.mordida)}` : "";
+  const cervTxt = f.movilidadCervical === "limitada" ? "LIMITACION A LA FLEXO-EXTENSION CERVICAL" : "NO LIMITACION A LA FLEXO-EXTENSION CERVICAL";
+  const dentTxt = f.dentadura === "protesis" ? "PORTA PROTESIS DENTAL" : f.dentadura === "edentulo" ? "EDENTULO" : "DENTADURA COMPLETA, SIN PROTESIS";
+  const airway = [aoTxt, mallTxt, dtmTxt, ulbtTxt, cervTxt, dentTxt].filter(Boolean).join(". ");
+  L.push(`-VALORACION VIA AEREA: ${airway}.${f.viaAereaObs ? ` ${f.viaAereaObs}.` : ""}`);
+  if (f.oxigeno === "si") {
+    if (f.oxDispositivo === "intubacion") {
+      const via = f.oxViaArtificial === "traqueostomia" ? `canula de traqueostomia #${f.oxTamano || "—"}` : `tubo traqueal #${f.oxTamano || "—"}`;
+      L.push(`Via aerea asegurada mediante ${via}.`);
+    } else {
+      L.push(`Oxigeno suplementario${f.oxDispositivo ? ` por ${OX_DISP[f.oxDispositivo]}` : ""}.`);
+    }
+  }
+  const exG = [f.soplo && f.soplo !== "ausente" && `Soplo cardiaco ${SOPLO[f.soplo]}`, f.exCardio && `CV: ${f.exCardio}`, f.exResp && `Resp: ${f.exResp}`, f.exAbdomen && `Abd: ${f.exAbdomen}`, f.exNeuro && `Neuro: ${f.exNeuro}`].filter(Boolean).join(". ");
+  if (exG) L.push(`${exG}.`);
+  L.push("");
+
+  L.push(sep("PARACLINICOS"));
+  const lab = J([
+    f.hb && `Hb ${f.hb} g/dL`, f.hematocrito && `Hto ${f.hematocrito}%`, f.plaquetas && `Plaquetas ${plaqTotal(f)}/uL`,
+    f.inr && `INR ${f.inr}`, f.creatinina && `Creatinina ${f.creatinina} mg/dL`, f.glucemia && `Glucemia ${f.glucemia} mg/dL`,
+    r.egfr && `TFG ${r.egfr} mL/min/1.73 (${r.egfrCat.stage})`, r.crcl && `ClCr ${r.crcl} mL/min`,
+  ]);
+  L.push(lab || "No registra");
+  const est = J([f.ecg && `ECG: ${f.ecg}`, f.rxTorax && `Rx torax: ${f.rxTorax}`, f.otrosEstudios && `Otros: ${f.otrosEstudios}`, ecoStr(f) && `Ecocardiograma: ${ecoStr(f)}`]);
+  if (est) L.push(est);
+  L.push("");
+
+  L.push(sep("SCORE DE RIESGO"));
+  L.push(`-RIESGO CARDIOVASCULAR (LEE): ${r.rcri.n} PUNTOS = CLASE ${leeClase} => RIESGO DEL ${leePct}% DE EVENTO CARDIACO MAYOR (INFARTO DE MIOCARDIO, EDEMA PULMONAR, FIBRILACION VENTRICULAR, PARADA CARDIO-RESPIRATORIA Y BLOQUEO A-V COMPLETO)`);
+  L.push("");
+  if (r.egfr) { L.push(`- TFG: ${r.egfr} ML/MIN/1.73M2`); L.push(""); }
+  L.push(`- ARISCAT: ${r.ariscat.score} PUNTOS RIESGO ${ariscatRiesgo} DE COMPLICACIONES PULMONARES POSTOPERATORIAS`);
+  L.push("");
+  L.push(`- ASA ${f.asa ? toRoman(f.asa) + (f.asaUrgencia ? "E" : "") : "—"}`);
+  L.push(`- Charlson (edad-aj.): ${r.charlson.total} (superv. 10a ~${r.charlson.surv}%)`);
+  L.push(`- Apfel (NVPO): ${r.apfel.n}/4 (${r.apfel.pct})`);
+  L.push(`- STOP-BANG: ${r.stop.n}/8 (${r.stop.label})`);
+  if (r.frail) L.push(`- Fragilidad CFS: ${r.frail.n} (${r.frail.label})`);
+  if (r.barthel) L.push(`- Barthel (AVD): ${r.barthel.score}/100 (${r.barthel.label})`);
+  if (r.must) L.push(`- MUST (nutricional): ${r.must.total} (${r.must.label})`);
+  L.push("");
+
+  L.push(sep("TRATAMIENTO ACTUAL"));
+  L.push(f.tratamientoIntra || "—");
+  L.push("");
+
+  L.push(sep("ANALISIS Y PLAN"));
+  analisisNarrativa(f, r).forEach((l) => L.push(l));
+  L.push("");
+  L.push("SE EXPLICAN TECNICAS ANESTESICAS, POSIBLES RIESGOS, COMPLICACIONES Y EFECTOS SECUNDARIOS EN TERMINOS QUE MANIFIESTA ENTENDER Y ACEPTAR. SE RESPONDEN PREGUNTAS DE MANERA CLARA.");
+  L.push("- GENERALES: NAUSEA. VOMITO. ESCALOFRIO. ALERGIA MEDICAMENTOSA. ZONAS DE PRESION. LESIONES OCULARES. NECESIDAD DE TRAQUEOSTOMIA, INTUBACION OROTRAQUEAL CON VENTILACION MECANICA INVASIVA PROLONGADA, USO DE VASOPRESORES/INOTROPICOS Y HOSPITALIZACION EN UCI POP");
+  L.push("- CARDIOVASCULAR: INFARTO CARDIACO. EVENTO CEREBROVASCULAR. EMBOLISMO PULMONAR. ARRITMIAS. PARO CARDIACO. MUERTE");
+  if (f.tipoAnestesia.includes("Neuroaxial")) L.push("- REGIONAL: CEFALEA POSTPUNCION. REQUERIR PARCHE HEMATICO. INFECCION. LESION DE NERVIO. TECNICA FALLIDA Y CONVERSION A TECNICA GENERAL.");
+  if (f.tipoAnestesia.includes("Regional")) L.push("- BLOQUEO: INFECCION. LESION DE UN NERVIO (TRANSITORIA O PERMANENTE). TECNICA FALLIDA.");
+  L.push("");
+  L.push("- SE FIRMA CONSENTIMIENTO INFORMADO DEBIDAMENTE DILIGENCIADO. SE DEJA CONSENTIMIENTO INFORMADO EN CARPETA DE HISTORIA DEL PACIENTE Y ESCANEADO EN SISTEMA.");
+  L.push("");
+  L.push("- SE EXPLICAN DERECHOS Y DEBERES");
+  L.push("");
+  if (f.evaluador || f.fechaValoracion) {
+    L.push(`Valorado por: ${f.evaluador || "____________________"}`);
+    L.push(`Registro: ${f.evaluadorRegistro || "__________"}`);
+    L.push(`Fecha: ${f.fechaValoracion ? fmtDateTime(f.fechaValoracion) : "__________"}`);
+  } else {
+    L.push("Valorado por: ____________________");
+    L.push("Registro: __________");
+    L.push("Fecha: __________");
+  }
+  L.push("");
+  L.push("Documento de apoyo; no sustituye el juicio clinico del anestesiologo responsable.");
+  return L.join("\n").toUpperCase();
+}
 function buildHC(f, r) {
+  if (f.tipoValoracion === "intrahospitalaria") return buildHCIntra(f, r);
   const J = (a) => a.filter(Boolean).join(", ");
   const ap = f.aperturaOral === "lt3" ? "< 3 cm" : ">= 3 cm";
   const dtm = f.distTiro === "lt6" ? "< 6 cm" : ">= 6 cm";
@@ -2077,14 +2553,17 @@ function buildHC(f, r) {
   L.push(`Sexo: ${sexo}`);
   if (f.sexo === "F" && f.gestacion !== "no") L.push(`Estado gestacional: ${f.gestacion === "si" ? `gestante${f.semanasGestacion ? ` (${f.semanasGestacion} semanas)` : ""}` : "posible embarazo"}.${f.fum ? ` FUM ${f.fum}.` : ""}`);
   L.push("");
+  if (f.tipoValoracion === "intrahospitalaria" && f.enfermedadActual) { L.push(`Enfermedad actual: ${f.enfermedadActual}`); L.push(""); }
   L.push(`Procedimiento propuesto: ${f.cirugia || "No registra"}`);
   L.push(`Caracter: ${cap(f.caracter)}`);
   if (f.lateralidad !== "na") L.push(`Lateralidad: ${LAT[f.lateralidad]}`);
   if (f.ncepod) L.push(`Urgencia NCEPOD: ${ncepodStr(f)}`);
   if (f.procedimientoEsc) L.push(`Riesgo cardiaco ESC 2022: ${r.cardRisk.label}`);
+  if (f.tipoValoracion === "intrahospitalaria" && f.diagnosticos) L.push(`Diagnosticos: ${f.diagnosticos}`);
   L.push("");
   const ants = antFull(f, r);
   L.push(`Antecedentes patologicos: ${ants.length ? ants.join("; ") : "Niega"}.${f.antecedentesOtros ? ` Otros: ${f.antecedentesOtros}.` : ""}`);
+  if (f.deci === "si") L.push(`Dispositivo cardiaco implantable: ${deciStr(f)}.`);
   L.push(`Antecedentes quirurgicos: ${f.cirugiasPrevias || "No registra"}.`);
   const evHC = [f.vadPrevia && "via aerea dificil previa", f.nvpoPrevia && "NVPO/cinetosis", f.hxFamiliarHM && "hist. familiar de hipertermia maligna"].filter(Boolean).join(", ");
   const anHC = [f.anestesiaPrevia.length && `tipos previos: ${f.anestesiaPrevia.join(", ")}`, evHC && `eventos: ${evHC}`, f.complicaciones && `complicaciones: ${f.complicaciones}`].filter(Boolean).join("; ");
@@ -2102,12 +2581,14 @@ function buildHC(f, r) {
   L.push(`Revision por sistemas: dolor toracico ${DOLOR_TOR[f.dolorToracico]}${f.dolorToracico === "anginoso" && f.anginaCCS ? ` (angina CCS ${toRoman(f.anginaCCS)})` : ""}.${f.sintResp.length ? ` Respiratorios: ${f.sintResp.join(", ")}.` : ""}${f.sintFalla.length ? ` Falla cardiaca: ${f.sintFalla.join(", ")}.` : ""}${f.rosObs ? ` Otros: ${f.rosObs}.` : ""}`);
   L.push(`Capacidad funcional: ${r.func.text}.`);
   L.push(`Estado funcional (NSQIP): ${NSQIP_FUNC[f.estadoFuncional]}.`);
+  if (r.barthel) L.push(`Barthel (AVD): ${r.barthel.score}/100 - ${r.barthel.label}.`);
+  if (r.must) L.push(`MUST (nutricional): ${r.must.total} - ${r.must.label}.`);
   L.push("");
   L.push(`Via aerea: Mallampati ${f.mallampati ? toRoman(f.mallampati) : "—"}, ULBT ${f.mordida ? "clase " + toRoman(f.mordida) : "—"}, apertura oral ${ap}, DTM ${dtm}, movilidad cervical ${cap(f.movilidadCervical)}, dentadura ${cap(f.dentadura)}. Predictores VAD ${r.vad.n}.`);
   if (f.viaAereaObs) L.push(`Observaciones via aerea: ${f.viaAereaObs}.`);
   if (f.aspiracion === "aumentado") L.push(`Riesgo de aspiracion pulmonar: aumentado${f.aspiracionFactores.length ? ` (${f.aspiracionFactores.join(", ")})` : ""}.`);
   L.push("");
-  const vit = J([f.ta && `TA ${f.ta}`, f.fc && `FC ${f.fc}`, f.spo2 && `SpO2 ${f.spo2}%`]);
+  const vit = J([f.ta && `TA ${f.ta}`, f.fc && `FC ${f.fc}`, f.fr && `FR ${f.fr}`, f.spo2 && `SpO2 ${f.spo2}%`]);
   L.push(`Examen fisico: peso ${f.peso || "—"} kg, talla ${f.talla || "—"} cm, IMC ${r.imc ? r.imc.toFixed(1) : "—"} (${r.imcCat.label}).${vit ? ` ${vit}.` : ""}`);
   if (f.oxigeno === "si") {
     if (f.oxDispositivo === "intubacion") {
@@ -2127,11 +2608,11 @@ function buildHC(f, r) {
     r.egfr && `TFG ${r.egfr} mL/min/1.73 (${r.egfrCat.stage})`, r.crcl && `ClCr ${r.crcl} mL/min`,
   ]);
   L.push(`Paraclinicos: ${lab || "No registra"}.`);
-  const est = J([f.ecg && `ECG: ${f.ecg}`, f.rxTorax && `Rx torax: ${f.rxTorax}`, f.otrosEstudios && `Otros: ${f.otrosEstudios}`]);
+  const est = J([f.ecg && `ECG: ${f.ecg}`, f.rxTorax && `Rx torax: ${f.rxTorax}`, f.otrosEstudios && `Otros: ${f.otrosEstudios}`, ecoStr(f) && `Ecocardiograma: ${ecoStr(f)}`]);
   if (est) L.push(`Estudios: ${est}.`);
   L.push("");
   L.push("Estratificacion de riesgo:");
-  L.push(`- ASA ${f.asa ? toRoman(f.asa) + (f.asaUrgencia ? "E" : "") : "—"}${f.asa ? `: ${ASA_SHORT[f.asa] || ""}` : ""}`);
+  L.push(`- ASA ${f.asa ? toRoman(f.asa) + (f.asaUrgencia ? "E" : "") : "—"}`);
   L.push(`- RCRI (Lee): ${r.rcri.n} (${r.rcri.label})`);
   if (f.procedimientoEsc) L.push(`- Riesgo cardiaco ESC 2022: ${r.cardRisk.label}`);
   L.push(`- ARISCAT (pulmonar): ${r.ariscat.score} (${r.ariscat.label}, CPP ${r.ariscat.pct})`);
@@ -2139,52 +2620,11 @@ function buildHC(f, r) {
   L.push(`- Apfel (NVPO): ${r.apfel.n}/4 (${r.apfel.pct})`);
   L.push(`- STOP-BANG: ${r.stop.n}/8 (${r.stop.label})`);
   if (r.frail) L.push(`- Fragilidad CFS: ${r.frail.n} (${r.frail.label})`);
+  if (r.barthel) L.push(`- Barthel (AVD): ${r.barthel.score}/100 (${r.barthel.label})`);
+  if (r.must) L.push(`- MUST (nutricional): ${r.must.total} (${r.must.label})`);
   L.push("");
-  L.push(`Plan anestesico: ${anestStr(f) || "No definido"}.`);
-  if (f.ayunoIncluir) L.push(`Ayuno: claros ${f.ayunoClaros} h, comida ligera ${f.ayunoLigera} h, comida copiosa ${f.ayunoCopiosa} h.`);
-  if (f.ayuno) L.push(`Ayuno (adicional): ${f.ayuno}.`);
-  if (f.consideraciones) L.push(`Consideraciones: ${f.consideraciones}.`);
-  if (f.medPeriopPlan) L.push(`Medicacion cronica perioperatoria: ${f.medPeriopPlan}.`);
-  L.push(`Disposicion postoperatoria: ${{ ninguna: "Hospitalizacion en sala", intermedio: "Cuidado intermedio", uci: "UCI" }[f.reservaCama]}.${f.reservaHemo ? ` Hemoderivados: ${hemoStr(f)}.` : ""}`);
-  if (f.solicitaEstudios === "si" && (f.examenesAdic.length || f.examenesAdicOtros)) L.push(`Estudios complementarios solicitados: ${[f.examenesAdic.join(", "), f.examenesAdicOtros].filter(Boolean).join(", ")}.`);
-  L.push("");
-  L.push(`Conclusion: ${CONCL[f.conclusion] || "Sin definir"}.`);
-  if (f.conclusion === "apto" || f.conclusion === "condiciones") {
-    const sexoN = f.sexo === "M" ? "masculino" : f.sexo === "F" ? "femenino" : "—";
-    const asaTxt = f.asa ? toRoman(f.asa) + (f.asaUrgencia ? "E" : "") : "—";
-    const riesgoProc = { low: "bajo", mod: "intermedio", high: "alto" }[r.cardRisk.level] || "no determinado";
-    const card = [];
-    if (f.hta) card.push("hipertension arterial");
-    if (f.cardiopatiaIsq) card.push(`cardiopatia isquemica${f.cardiopatiaRevasc && f.cardiopatiaRevasc !== "ninguna" ? ` (${REVASC[f.cardiopatiaRevasc]})` : ""}`);
-    if (f.icc) card.push(`insuficiencia cardiaca${f.iccNyha ? ` NYHA ${toRoman(f.iccNyha)}` : ""}`);
-    if (f.arritmia) card.push(`arritmia${f.arrTipo ? ` (${f.arrTipo})` : ""}`);
-    if (f.valvulopatia) card.push("valvulopatia");
-    const cardTxt = card.length ? `con antecedente de ${card.join(", ")}, ` : "";
-    const leeClase = r.rcri.n >= 3 ? "IV" : r.rcri.n === 2 ? "III" : r.rcri.n === 1 ? "II" : "I";
-    const leePct = r.rcri.n >= 3 ? "11" : r.rcri.n === 2 ? "6.6" : r.rcri.n === 1 ? "0.9" : "0.4";
-    const vadTxt = r.vad.n > 0 ? "con" : "sin";
-    const aspTxt = f.aspiracion === "aumentado" ? "riesgo aumentado de aspiracion pulmonar" : "bajo riesgo de aspiracion pulmonar";
-    L.push("");
-    L.push("ANALISIS:");
-    L.push(`Paciente ${sexoN} de ${f.edad || "—"} años ASA ${asaTxt} quien requiere ${f.cirugia || "el procedimiento descrito"}, procedimiento quirurgico de riesgo ${riesgoProc}${f.ncepod ? `, NCEPOD ${ncepodStr(f)}` : ""}, capacidad funcional ${r.func.text}, ${cardTxt}indice de Lee con puntaje de ${r.rcri.n} (clase ${leeClase}, riesgo del ${leePct}% de evento cardiaco mayor), ${vadTxt} predictores de via aerea dificil. ${aspTxt}. Se puede programar con las siguientes recomendaciones:`);
-    const recs = [];
-    if (f.ayunoIncluir) recs.push(`Ayuno preoperatorio: liquidos claros ${f.ayunoClaros} h, comida ligera ${f.ayunoLigera} h, comida copiosa/grasa ${f.ayunoCopiosa} h.${f.ayuno ? ` ${f.ayuno}.` : ""}`);
-    else if (f.ayuno) recs.push(`Ayuno: ${f.ayuno}.`);
-    if (f.medPeriopPlan) recs.push(`Manejo de medicacion cronica perioperatoria: ${f.medPeriopPlan}.`);
-    if (f.anticoagulantes === "si" && f.anticoagPlanDetalle) recs.push(`Manejo perioperatorio de anticoagulacion/antiagregacion: ${f.anticoagPlanDetalle}.`);
-    if (r.vad.n > 0 || f.aspiracion === "aumentado") recs.push(`${r.vad.n > 0 ? "Disponer equipo y plan de via aerea dificil" : "Precaucion en via aerea"}${f.aspiracion === "aumentado" ? "; riesgo aumentado de aspiracion: considerar induccion de secuencia rapida y profilaxis" : ""}.${f.viaAereaObs ? ` ${f.viaAereaObs}.` : ""}`);
-    if (f.solicitaEstudios === "si" && (f.examenesAdic.length || f.examenesAdicOtros)) recs.push(`Se solicita ${[f.examenesAdic.join(", "), f.examenesAdicOtros].filter(Boolean).join(", ")}.`);
-    if (f.reservaHemo) recs.push(`Reserva de hemoderivados: ${hemoStr(f)}.`);
-    const disp = [];
-    const camaTxt = { ninguna: "", intermedio: "reserva de cama en cuidado intermedio", uci: "reserva de cama en UCI" }[f.reservaCama];
-    if (camaTxt) disp.push(camaTxt);
-    if (f.reservaObs) disp.push(f.reservaObs);
-    if (disp.length) recs.push(`Disposicion postoperatoria: ${disp.join("; ")}.`);
-    if (f.recomendaciones) (f.recomendaciones || "").split(/\n+/).map((s) => s.trim()).filter(Boolean).forEach((s) => recs.push(s));
-    if (recs.length) recs.forEach((rl, i) => L.push(`${i + 1}. ${rl}`));
-  } else if (f.recomendaciones) {
-    L.push(`Recomendaciones: ${f.recomendaciones}.`);
-  }
+  L.push("ANALISIS Y PLAN:");
+  analisisNarrativa(f, r).forEach((l) => L.push(l));
   L.push("");
   if (f.evaluador || f.fechaValoracion) {
     L.push(`Valorado por: ${f.evaluador || "____________________"}`);
